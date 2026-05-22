@@ -1,0 +1,7 @@
+fastapi>=0.115,<1
+joblib>=1.4,<2
+keras>=3.13.2,<4
+numpy>=1.26,<3
+scikit-learn==1.6.1
+tensorflow>=2.21,<3
+uvicorn[standard]>=0.32,<1
