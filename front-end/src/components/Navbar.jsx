@@ -1,6 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 
+const IT_TREND_URL =
+  "https://dashboard-capstone-byrbw6njgamqleehs8t6tb.streamlit.app/";
+
 function Navbar() {
   const location = useLocation();
   const isResultPage = location.pathname === "/result";
@@ -15,22 +18,23 @@ function Navbar() {
           <>
             <p>My Result</p>
             <Link to="/">Back to Home</Link>
-            <ThemeToggle />
           </>
         ) : isCVBuilderPage ? (
           <>
             <p>Build Your ATS CV</p>
             <Link to="/">Back to Home</Link>
-            <ThemeToggle />
           </>
         ) : (
           <>
             <a href="#about">Home</a>
             <a href="#upload-cv">Analyze</a>
             <Link to="/cv-builder">CV Builder</Link>
-            <ThemeToggle />
           </>
         )}
+        <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
+          IT Trend
+        </a>
+        <ThemeToggle />
       </nav>
     </header>
   );
