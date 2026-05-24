@@ -26,6 +26,10 @@ body.dark {
   --accent: #ffffff;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -113,8 +117,6 @@ a {
   background: var(--surface-soft);
   color: var(--muted);
   cursor: pointer;
-
-
 }
 
 .theme-btn:hover {
@@ -585,7 +587,7 @@ a {
 }
 
 .score-circle::before {
-  content: "";
+  content: '';
   position: absolute;
   width: 88px;
   height: 88px;
@@ -806,7 +808,7 @@ a {
 
 .cv-builder-layout {
   display: grid;
-    grid-template-columns: 520px minmax(0, 1fr);
+  grid-template-columns: 520px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -818,8 +820,6 @@ a {
   border-radius: 10px;
   padding: 24px;
 }
-
-
 
 .cv-form {
   display: flex;
@@ -899,7 +899,7 @@ a {
   color: var(--text);
 }
 
-.cv-form-subsection label:has(input[type="checkbox"]) {
+.cv-form-subsection label:has(input[type='checkbox']) {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -907,7 +907,7 @@ a {
   font-weight: 600;
 }
 
-.cv-form-subsection input[type="checkbox"] {
+.cv-form-subsection input[type='checkbox'] {
   width: auto;
   margin: 0;
 }
@@ -1020,7 +1020,7 @@ a {
 }
 
 .cv-preview-section h2 {
-   margin-bottom: 10px;
+  margin-bottom: 10px;
   padding-bottom: 6px;
   border-bottom: 2px solid #bdbdbd;
   font-size: 18px;
@@ -1028,7 +1028,6 @@ a {
   text-transform: uppercase;
   letter-spacing: 0.01em;
 }
-
 
 .cv-preview-section p {
   font-size: 13px;
@@ -1091,7 +1090,6 @@ a {
   white-space: pre-line;
   word-break: break-word;
 }
-
 
 @media (max-width: 900px) {
   .cv-builder-page {
@@ -1180,7 +1178,6 @@ a {
   border-color: var(--text);
 }
 
-
 @media print {
   body {
     background: #ffffff;
@@ -1253,5 +1250,3 @@ a {
     page-break-inside: avoid;
   }
 }
-
-

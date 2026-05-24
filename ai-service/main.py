@@ -385,27 +385,27 @@ def build_improvements(
 
     if not resume_skills:
         improvements.append(
-            "Tambahkan bagian skill atau project yang menyebut skill teknis dengan jelas."
+          "Add a skills or projects section that clearly mentions your technical skills."
         )
 
     if not job_skills:
         improvements.append(
-            "Gunakan job description yang lebih lengkap agar skill target dapat diekstrak."
+           "Use a more complete job description so target skills can be extracted."
         )
 
     if missing_skills:
         skill_preview = ", ".join(missing_skills[:4])
         improvements.append(
-            f"Jika Anda memilikinya, tunjukkan bukti skill yang dicari lowongan: {skill_preview}."
+            f"If you have them, show proof of the skills the job is looking for: {skill_preview}."
         )
 
     if score < 70:
         improvements.append(
-            "Sesuaikan ringkasan, pengalaman, dan project dengan kebutuhan lowongan."
+            "Align your summary, experience, and projects with the job requirements."
         )
 
     improvements.append(
-        "Tambahkan dampak terukur pada pengalaman atau project yang paling relevan."
+        "Add measurable impact to your most relevant experiences or projects."
     )
     return improvements[:4]
 
