@@ -22,6 +22,9 @@ function Navbar() {
         ) : isCVBuilderPage ? (
           <>
             <p>Build Your ATS CV</p>
+            <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
+          IT Trend
+        </a>
             <Link to="/">Back to Home</Link>
           </>
         ) : (
@@ -29,11 +32,12 @@ function Navbar() {
             <a href="#about">Home</a>
             <a href="#upload-cv">Analyze</a>
             <Link to="/cv-builder">CV Builder</Link>
-          </>
-        )}
-        <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
+            <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
           IT Trend
         </a>
+          </>
+        )}
+        
         <ThemeToggle />
       </nav>
     </header>
