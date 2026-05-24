@@ -1,46 +1,39 @@
-# Dependencies
-node_modules/
 
-# Environment files and local secrets
-.env
-.env.*
-!.env.example
-*.key
-*.pem
-*.p12
-*.pfx
-
-# Node and frontend output
-dist/
-coverage/
-.vite/
-.eslintcache
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Python environments and cache
-.venv/
-venv/
-__pycache__/
+# ==========================================
+# 1. PYTHON (ai-service)
+# ==========================================
+ai-service/venv/
+**/__pycache__/
 *.py[cod]
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
 
-# Temporary and runtime files
+# ==========================================
+# 2. NODE.JS / REACT (back-end & front-end)
+# ==========================================
+back-end/node_modules/
+front-end/node_modules/
+
+# Folder hasil build/produksi React
+front-end/dist/
+front-end/build/
+
+# Log error bawaan npm
 *.log
-tmp/
-temp/
-uploads/
-.ipynb_checkpoints/
 
-# Editors and operating system files
-.vscode/
-.idea/
+# ==========================================
+# 3. SECURITY (Environment Variables)
+# ==========================================
+.env
+back-end/.env
+front-end/.env
+ai-service/.env
+back-end/.venv
+front-end/.venv
+ai-service/.venv
+
+# ==========================================
+# 4. OS / IDE SYSTEM
+# ==========================================
 .DS_Store
 Thumbs.db
+.vscode/
+
