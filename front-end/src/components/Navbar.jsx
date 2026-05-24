@@ -17,6 +17,9 @@ function Navbar() {
         {isResultPage ? (
           <>
             <p>My Result</p>
+            <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
+          IT Trend
+        </a>
             <Link to="/">Back to Home</Link>
           </>
         ) : isCVBuilderPage ? (
