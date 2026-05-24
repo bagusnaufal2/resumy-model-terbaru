@@ -11,23 +11,25 @@ function Navbar() {
 
   return (
     <header className="navbar">
-      <h1 className="logo">ResuMy</h1>
+      <Link className="logo" to="/" aria-label="ResuMy home">
+        Resu<span>My</span>
+      </Link>
 
       <nav className="nav-menu">
         {isResultPage ? (
           <>
-            <p>My Result</p>
+            <span className="nav-context">My Result</span>
             <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
-          IT Trend
-        </a>
+              IT Trend
+            </a>
             <Link to="/">Back to Home</Link>
           </>
         ) : isCVBuilderPage ? (
           <>
-            <p>Build Your ATS CV</p>
+            <span className="nav-context">ATS CV Builder</span>
             <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
-          IT Trend
-        </a>
+              IT Trend
+            </a>
             <Link to="/">Back to Home</Link>
           </>
         ) : (
@@ -36,11 +38,11 @@ function Navbar() {
             <a href="#upload-cv">Analyze</a>
             <Link to="/cv-builder">CV Builder</Link>
             <a href={IT_TREND_URL} target="_blank" rel="noopener noreferrer">
-          IT Trend
-        </a>
+              IT Trend
+            </a>
           </>
         )}
-        
+
         <ThemeToggle />
       </nav>
     </header>

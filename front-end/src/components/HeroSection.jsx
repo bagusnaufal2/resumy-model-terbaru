@@ -3,6 +3,7 @@ import {
     FaFileAlt,
     FaSearchDollar
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import FeaturedCard from "./FeaturedCard";
 
 const featureList = [
@@ -42,6 +43,7 @@ function HeroSection() {
                 </p>
                 <div className="hero-actions">
                     <a className="primary-button" href="#upload-cv">Analyze your CV</a>
+                    <Link className="secondary-button" to="/cv-builder">Build an ATS CV</Link>
                 </div>
             </div>
 

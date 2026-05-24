@@ -92,14 +92,11 @@ function UploadSection({ onAnalyze, isAnalyzing, analyzeError }) {
         <div className="upload-icon">
           <FaCloudUploadAlt />
         </div>
-        <p>
-          <strong>Click to Upload</strong>{" "}
+        <p className="upload-callout">
+          <strong>Drop your resume here</strong> or browse files
         </p>
-        <br />
-        Input your CV or select it from your computer.
-        <br />
-        PDF or DOCX up to 2 MB.
-        {file && <span className="file-name">{file.name}</span>}
+        <span className="upload-hint">PDF or DOCX, maximum 2 MB</span>
+        {file && <span className="file-name">Selected: {file.name}</span>}
       </label>
       <div className="job-description-field">
         <label htmlFor="job-description">Job description</label>
@@ -131,6 +128,7 @@ function UploadSection({ onAnalyze, isAnalyzing, analyzeError }) {
       </div>
 
       <div className="tech-strip" id="tech">
+        <span className="section-kicker">Technology</span>
         <p className="tech-strip-description">
           Built with a modern stack for lightning-fast analysis and seamless
           resume processing.

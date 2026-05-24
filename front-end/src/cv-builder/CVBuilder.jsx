@@ -70,7 +70,7 @@ const handleDownloadCV = () => {
                 </button>
             </div>
             </section>
-            </div>    
+            </div>
         </div>
 
     );

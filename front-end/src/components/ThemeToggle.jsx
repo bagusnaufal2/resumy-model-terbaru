@@ -3,15 +3,15 @@ import { FaSun, FaMoon } from "react-icons/fa";
 
 export default function ThemeToggle() {
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
+    return localStorage.getItem("theme") !== "light";
   });
 
   useEffect(() => {
     if (darkMode) {
-      document.body.classList.add("dark");
+      document.body.classList.remove("light");
       localStorage.setItem("theme", "dark");
     } else {
-      document.body.classList.remove("dark");
+      document.body.classList.add("light");
       localStorage.setItem("theme", "light");
     }
   }, [darkMode]);

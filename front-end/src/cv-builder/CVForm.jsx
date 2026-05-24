@@ -342,7 +342,7 @@ function CVForm({ cvData, setCvData }) {
 
             {activeSection === "certifications" && (
                 <section className="cv-form-section">
-                    
+
                     {cvData.certifications.map((certificate, index) => (
                         <div key={index} className="cv-form-subsection">
                             <h4>Certification {index + 1}</h4>
