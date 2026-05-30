@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import RoadmapSection from './RoadmapSection';
+import { roadmapMock } from './roadmapMock';
 
 function SkillTags({ skills = [], emptyLabel }) {
   if (!skills.length) {
@@ -95,6 +97,8 @@ function DashboardResult({ result }) {
           </div>
         </div>
       </div>
+
+      <RoadmapSection roadmap={roadmapMock} />
     </section>
   );
 }

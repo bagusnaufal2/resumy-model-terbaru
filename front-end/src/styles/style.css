@@ -759,6 +759,34 @@ body.light .error-message {
   font-weight: 650;
 }
 
+/* Tambahan Roadmap Section Style */
+.roadmap-section {
+  margin-top: 3rem;
+}
+
+.roadmap-card {
+  margin-top: 1rem;
+}
+
+.roadmap-summary {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.roadmap-card ul {
+  margin-top: 0.5rem;
+  padding-left: 1.25rem;
+}
+
+.roadmap-card a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.roadmap-card a:hover {
+  text-decoration: underline;
+}
+
 .skill-tags {
   display: flex;
   flex-wrap: wrap;

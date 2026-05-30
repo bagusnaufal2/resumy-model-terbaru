@@ -1,4 +1,4 @@
-const DEFAULT_AI_SERVICE_URL = "http://127.0.0.1:8000";
+const DEFAULT_AI_SERVICE_URL = 'http://127.0.0.1:8000';
 const DEFAULT_TIMEOUT_MS = 30000;
 
 function createAIServiceError(message, statusCode = 502) {
@@ -12,16 +12,14 @@ function normalizeStringArray(value) {
     return [];
   }
 
-  return value
-    .map((item) => String(item).trim())
-    .filter(Boolean);
+  return value.map((item) => String(item).trim()).filter(Boolean);
 }
 
 function normalizeAnalysis(data) {
   const numericScore = Number(data?.score);
 
   if (!Number.isFinite(numericScore)) {
-    throw createAIServiceError("AI service returned an invalid score.");
+    throw createAIServiceError('AI service returned an invalid score.');
   }
 
   return {
@@ -35,7 +33,7 @@ function normalizeAnalysis(data) {
 function getAIServiceUrl() {
   return (process.env.AI_SERVICE_URL || DEFAULT_AI_SERVICE_URL).replace(
     /\/$/,
-    ""
+    '',
   );
 }
 
@@ -53,9 +51,9 @@ export async function analyzeResumeWithAI({ resumeText, jobDescription }) {
 
   try {
     response = await fetch(`${getAIServiceUrl()}/analyze`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         resume_text: resumeText,
@@ -65,9 +63,9 @@ export async function analyzeResumeWithAI({ resumeText, jobDescription }) {
     });
   } catch (error) {
     const reason =
-      error.name === "AbortError"
-        ? "AI service timed out."
-        : "AI service is not reachable. Start the Python AI service first.";
+      error.name === 'AbortError'
+        ? 'AI service timed out.'
+        : 'AI service is not reachable. Start the Python AI service first.';
     throw createAIServiceError(reason);
   } finally {
     clearTimeout(timeout);
@@ -77,11 +75,51 @@ export async function analyzeResumeWithAI({ resumeText, jobDescription }) {
 
   if (!response.ok) {
     const message =
-      typeof body.detail === "string"
+      typeof body.detail === 'string'
         ? body.detail
-        : "AI service could not analyze this resume.";
+        : 'AI service could not analyze this resume.';
     throw createAIServiceError(message);
   }
 
   return normalizeAnalysis(body);
+}
+
+// Penambahan Generate RoadMapWithAI
+export async function generateRoadmapWithAI({
+  jobTitle,
+  currentSkills,
+  missingSkills,
+}) {
+  const controller = new AbortController();
+
+  const timeout = setTimeout(() => controller.abort(), getAIServiceTimeout());
+
+  let response;
+
+  try {
+    response = await fetch(`${getAIServiceUrl()}/api/generate-roadmap`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        job_title: jobTitle,
+        current_skills: currentSkills,
+        missing_skills: missingSkills,
+      }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    throw createAIServiceError('Roadmap service is not reachable.');
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw createAIServiceError(body.detail || 'Roadmap generation failed.');
+  }
+
+  return body.data;
 }
