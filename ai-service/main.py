@@ -6,6 +6,8 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
+from fastapi.middleware.cors import CORSMiddleware
+from roadmap_generator import router as roadmap_router
 import joblib
 import numpy as np
 from fastapi import FastAPI, HTTPException
@@ -451,8 +453,26 @@ def get_scorer() -> AtsScorer:
     )
 
 
-app = FastAPI(title="ResuMy ATS Analysis Service")
+# app = FastAPI(title="ResuMy ATS Analysis Service")
 
+# New Updated from AI Engineer
+app = FastAPI(
+    title="ResuMy ATS Analysis Service",
+    description="ATS Analysis + Roadmap Generator",
+    version="1.0.0",
+)
+
+# New Updated from AI Engineer
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# New Updated from AI Engineer
+app.include_router(roadmap_router)
 
 @app.get("/health")
 def health() -> dict[str, object]:
