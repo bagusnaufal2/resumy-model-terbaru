@@ -1,5 +1,11 @@
 function RoadmapSection({ roadmap }) {
-  if (!roadmap) return null;
+  if (!roadmap) {
+    return null;
+  }
+
+  if (!roadmap.roadmap || !Array.isArray(roadmap.roadmap)) {
+    return null;
+  }
 
   return (
     <div className='roadmap-section'>
@@ -9,11 +15,11 @@ function RoadmapSection({ roadmap }) {
         <p className='roadmap-summary'>{roadmap.summary}</p>
 
         <p>
-          <strong>Target Role:</strong> {roadmap.job_title}
+          <strong>Target Role:</strong> {roadmap.jobTitle}
         </p>
 
         <p>
-          <strong>Estimated Duration:</strong> {roadmap.total_estimated_weeks}{' '}
+          <strong>Estimated Duration:</strong> {roadmap.totalEstimatedWeeks}{' '}
           weeks
         </p>
       </div>
@@ -29,7 +35,7 @@ function RoadmapSection({ roadmap }) {
           </p>
 
           <p>
-            <strong>Estimated Time:</strong> {step.estimated_weeks} weeks
+            <strong>Estimated Time:</strong> {step.estimatedWeeks} weeks
           </p>
 
           <p>
@@ -40,11 +46,17 @@ function RoadmapSection({ roadmap }) {
             <strong>Resources:</strong>
 
             <ul>
-              {step.learning_resources.map((resource, index) => (
+              {(step.learningResources || []).map((resource, index) => (
                 <li key={index}>
-                  <a href={resource.url} target='_blank' rel='noreferrer'>
-                    {resource.name}
-                  </a>
+                  {resource.url && resource.url !== 'N/A' ? (
+                    <a href={resource.url} target='_blank' rel='noreferrer'>
+                      {resource.name} ({resource.type})
+                    </a>
+                  ) : (
+                    <span>
+                      {resource.name} ({resource.type})
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

@@ -23,27 +23,15 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 load_dotenv()
 
-# GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# if not GEMINI_API_KEY:
-#     logger.warning(
-#         "GEMINI_API_KEY tidak ditemukan di environment variables. "
-#         "Endpoint /api/generate-roadmap tidak akan berfungsi."
-#     )
-
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+print("API KEY RAW:", repr(GEMINI_API_KEY))
 
 if not GEMINI_API_KEY:
     logger.warning(
         "GEMINI_API_KEY tidak ditemukan di environment variables. "
         "Endpoint /api/generate-roadmap tidak akan berfungsi."
     )
-
-client = None
-
-if GEMINI_API_KEY:
-    client = genai.Client(api_key=GEMINI_API_KEY)
-
-# client = genai.Client(api_key=GEMINI_API_KEY)
 
 client = None
 
@@ -107,22 +95,38 @@ class RoadmapRequest(BaseModel):
 # ---------------------------------------------------------------------------
 FALLBACK_ROADMAP = {
     "job_title": "Machine Learning Engineer",
+    "summary": "Learn deployment and backend skills for ML Engineer roles.",
+    "total_estimated_weeks": 8,
     "roadmap": [
         {
             "step": 1,
             "skill": "FastAPI",
-            "description": "Learn how to build REST APIs for ML models.",
+            "priority": "high",
             "estimated_weeks": 2,
-            "recommended_resource": "FastAPI official docs",
+            "learning_resources": [
+                {
+                    "type": "documentation",
+                    "name": "FastAPI Docs",
+                    "url": "https://fastapi.tiangolo.com"
+                }
+            ],
+            "milestone": "Build a REST API for ML inference."
         },
         {
             "step": 2,
             "skill": "Docker",
-            "description": "Containerize your ML endpoints for deployment.",
+            "priority": "high",
             "estimated_weeks": 2,
-            "recommended_resource": "Docker for Beginners",
-        },
-    ],
+            "learning_resources": [
+                {
+                    "type": "documentation",
+                    "name": "Docker Docs",
+                    "url": "https://docs.docker.com"
+                }
+            ],
+            "milestone": "Containerize ML service."
+        }
+    ]
 }
 
 
@@ -197,9 +201,14 @@ async def generate_roadmap(payload: RoadmapRequest):
         ) from exc
 
     except Exception as exc:
-        logger.warning(
-            "Gemini API gagal (%s). Mengembalikan data mock fallback.", exc
-        )
+        import traceback
+
+        print("\n===== GEMINI ERROR =====")
+        print(type(exc))
+        print(exc)
+        traceback.print_exc()
+        print("========================\n")
+
         return {
             "success": True,
             "source": "mock_fallback",

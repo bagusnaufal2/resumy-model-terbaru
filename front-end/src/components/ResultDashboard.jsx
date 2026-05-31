@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import RoadmapSection from './RoadmapSection';
-import { roadmapMock } from './roadmapMock';
 
 function SkillTags({ skills = [], emptyLabel }) {
   if (!skills.length) {
@@ -32,18 +31,6 @@ function DashboardResult({ result }) {
           Back to Home
         </Link>
       </div>
-
-      {/* <div className="score-section">
-                <h3>ATS Match Score</h3>
-                <div
-                    className="score-circle"
-                    style={{ "--score-value": `${result.score}%` }}
-                    aria-label={`ATS match score ${result.score} percent`}
-                >
-                    <span>{result.score}%</span>
-                </div>
-                <p>My Result</p>
-            </div> */}
 
       <div className='score-section'>
         <h3>ATS Match Score</h3>
@@ -98,7 +85,7 @@ function DashboardResult({ result }) {
         </div>
       </div>
 
-      <RoadmapSection roadmap={roadmapMock} />
+      <RoadmapSection roadmap={result.roadmap} />
     </section>
   );
 }

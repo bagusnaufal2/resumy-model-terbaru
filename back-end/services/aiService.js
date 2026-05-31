@@ -11,10 +11,10 @@ function normalizeStringArray(value) {
   if (!Array.isArray(value)) {
     return [];
   }
-
   return value.map((item) => String(item).trim()).filter(Boolean);
 }
 
+// Helper untuk menormalisasi output Analisis ATS CV
 function normalizeAnalysis(data) {
   const numericScore = Number(data?.score);
 
@@ -27,6 +27,34 @@ function normalizeAnalysis(data) {
     skillsHave: normalizeStringArray(data.skillsHave),
     skillsMissing: normalizeStringArray(data.skillsMissing),
     improvements: normalizeStringArray(data.improvements),
+  };
+}
+
+// Helper baru untuk menormalisasi output Roadmap dari Gemini Python
+function normalizeRoadmap(body) {
+  const roadmapData = body?.data;
+
+  // Validasi apakah struktur data utama dari FastAPI Python valid
+  if (!roadmapData || !Array.isArray(roadmapData.roadmap)) {
+    throw createAIServiceError(
+      'AI service returned an invalid roadmap structure.',
+    );
+  }
+
+  return {
+    jobTitle: roadmapData.job_title || '',
+    summary: roadmapData.summary || '',
+    totalEstimatedWeeks: Number(roadmapData.total_estimated_weeks) || 0,
+    roadmap: roadmapData.roadmap.map((item) => ({
+      step: Number(item.step) || 0,
+      skill: String(item.skill || '').trim(),
+      priority: String(item.priority || 'medium').trim(),
+      estimatedWeeks: Number(item.estimated_weeks) || 0,
+      learningResources: Array.isArray(item.learning_resources)
+        ? item.learning_resources
+        : [],
+      milestone: String(item.milestone || '').trim(),
+    })),
   };
 }
 
@@ -44,6 +72,7 @@ function getAIServiceTimeout() {
     : DEFAULT_TIMEOUT_MS;
 }
 
+// FITUR 1: Analisis ATS CV
 export async function analyzeResumeWithAI({ resumeText, jobDescription }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), getAIServiceTimeout());
@@ -84,16 +113,14 @@ export async function analyzeResumeWithAI({ resumeText, jobDescription }) {
   return normalizeAnalysis(body);
 }
 
-// Penambahan Generate RoadMapWithAI
+// FITUR 2: Roadmap Generator (Menembak FastAPI Python Router)
 export async function generateRoadmapWithAI({
   jobTitle,
   currentSkills,
   missingSkills,
 }) {
   const controller = new AbortController();
-
   const timeout = setTimeout(() => controller.abort(), getAIServiceTimeout());
-
   let response;
 
   try {
@@ -104,13 +131,21 @@ export async function generateRoadmapWithAI({
       },
       body: JSON.stringify({
         job_title: jobTitle,
-        current_skills: currentSkills,
-        missing_skills: missingSkills,
+        current_skills: Array.isArray(currentSkills)
+          ? currentSkills.join(', ')
+          : currentSkills,
+        missing_skills: Array.isArray(missingSkills)
+          ? missingSkills.join(', ')
+          : missingSkills,
       }),
-      signal: controller.signal,
+      signal: controller.signal, // Penambahan signal timeout aktif
     });
   } catch (error) {
-    throw createAIServiceError('Roadmap service is not reachable.');
+    const reason =
+      error.name === 'AbortError'
+        ? 'Roadmap service timed out.'
+        : 'Roadmap service is not reachable.';
+    throw createAIServiceError(reason);
   } finally {
     clearTimeout(timeout);
   }
@@ -121,5 +156,6 @@ export async function generateRoadmapWithAI({
     throw createAIServiceError(body.detail || 'Roadmap generation failed.');
   }
 
-  return body.data;
+  // Memasukkan hasil response mentah ke dalam helper normalisasi data
+  return normalizeRoadmap(body);
 }
