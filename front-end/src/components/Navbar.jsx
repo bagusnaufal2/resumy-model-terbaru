@@ -66,7 +66,7 @@ function Navbar() {
         ) : isCVBuilderPage ? (
           <>
             <span className={navClass(true)} aria-current='page'>
-              ATS CV Builder
+              CV Builder
             </span>
             <a
               className={navClass()}
