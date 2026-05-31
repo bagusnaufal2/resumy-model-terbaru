@@ -41,10 +41,10 @@ function DashboardResult({ result }) {
             '--score-value': `${result.score}%`,
             '--score-color':
               result.score > 80
-                ? '#22c55e' // hijau
+                ? '#22c55e' 
                 : result.score > 50
-                  ? '#eab308' // kuning
-                  : '#ef4444', // merah
+                  ? '#eab308' 
+                  : '#ef4444',
           }}
           aria-label={`ATS match score ${result.score} percent`}
         >
