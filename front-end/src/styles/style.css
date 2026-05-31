@@ -165,8 +165,7 @@ textarea {
   color: var(--text);
 }
 
-.nav-menu a,
-.nav-context {
+.nav-link {
   display: inline-flex;
   align-items: center;
   min-height: 40px;
@@ -179,13 +178,13 @@ textarea {
     color 0.2s ease;
 }
 
-.nav-menu a:hover {
+.nav-link:hover {
   border-color: var(--accent-border);
   background: var(--accent-soft);
   color: var(--text);
 }
 
-.nav-context {
+.nav-link.is-active {
   border-color: var(--accent-border);
   background: var(--accent-soft);
   color: var(--text);
@@ -214,7 +213,7 @@ textarea {
 }
 
 .theme-btn:focus-visible,
-.nav-menu a:focus-visible,
+.nav-link:focus-visible,
 .nav-toggle:focus-visible,
 .logo:focus-visible {
   outline: 2px solid var(--accent);
@@ -421,17 +420,6 @@ body.light .badge {
 .tech-card:hover {
   transform: translateY(-4px);
   border-color: var(--accent-border);
-}
-
-.feature-card::after {
-  position: absolute;
-  right: -52px;
-  bottom: -62px;
-  width: 125px;
-  height: 125px;
-  border-radius: 50%;
-  background: var(--card);
-  content: '';
 }
 
 .featured-icon,
@@ -1727,8 +1715,7 @@ body.light .skeleton-block::after {
     display: flex;
   }
 
-  .nav-menu a,
-  .nav-context {
+  .nav-link {
     width: 100%;
     justify-content: flex-start;
     border-radius: 10px;
@@ -1786,8 +1773,7 @@ body.light .skeleton-block::after {
     gap: 8px;
   }
 
-  .nav-menu a,
-  .nav-context {
+  .nav-link {
     min-height: 36px;
     padding: 0 11px;
   }
