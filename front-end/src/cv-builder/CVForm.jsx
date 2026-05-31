@@ -1,7 +1,17 @@
 import { useState } from 'react';
+import { FaTrashAlt } from 'react-icons/fa';
 
 function CVForm({ cvData, setCvData }) {
   const [activeSection, setActiveSection] = useState('personal');
+
+  const removeListItem = (sectionName, index) => {
+    setCvData((prevData) => ({
+      ...prevData,
+      [sectionName]: prevData[sectionName].filter(
+        (_, itemIndex) => itemIndex !== index
+      ),
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -255,15 +265,18 @@ function CVForm({ cvData, setCvData }) {
         <section className='cv-form-section'>
           {cvData.experience.map((exp, index) => (
             <div key={index} className='cv-form-subsection'>
-              <h4>Experience {index + 1}</h4>
-              <input
-                type='text'
-                placeholder='Company'
-                value={exp.company}
-                onChange={(e) =>
-                  handleExperienceChange(index, 'company', e.target.value)
-                }
-              />
+              <div className='cv-form-subsection-header'>
+                <h4>Experience {index + 1}</h4>
+                <button
+                  type='button'
+                  className='cv-form-remove-btn'
+                  onClick={() => removeListItem('experience', index)}
+                  aria-label={`Remove experience ${index + 1}`}
+                  title='Remove experience'
+                >
+                  <FaTrashAlt aria-hidden='true' />
+                </button>
+              </div>
               <input
                 type='text'
                 placeholder='Role'
@@ -273,12 +286,22 @@ function CVForm({ cvData, setCvData }) {
                 }
               />
               <input
+                type='text'
+                placeholder='Company'
+                value={exp.company}
+                onChange={(e) =>
+                  handleExperienceChange(index, 'company', e.target.value)
+                }
+              />
+              <label>Start Date</label>
+              <input
                 type='date'
                 value={exp.startDate}
                 onChange={(e) =>
                   handleExperienceChange(index, 'startDate', e.target.value)
                 }
               />
+              <label>End Date</label>
               <input
                 type='date'
                 value={exp.endDate}
@@ -317,15 +340,18 @@ function CVForm({ cvData, setCvData }) {
         <section className='cv-form-section'>
           {cvData.education.map((edu, index) => (
             <div key={index} className='cv-form-subsection'>
-              <h4>Education {index + 1}</h4>
-              <input
-                type='text'
-                placeholder='School'
-                value={edu.school}
-                onChange={(e) =>
-                  handleEducationChange(index, 'school', e.target.value)
-                }
-              />
+              <div className='cv-form-subsection-header'>
+                <h4>Education {index + 1}</h4>
+                <button
+                  type='button'
+                  className='cv-form-remove-btn'
+                  onClick={() => removeListItem('education', index)}
+                  aria-label={`Remove education ${index + 1}`}
+                  title='Remove education'
+                >
+                  <FaTrashAlt aria-hidden='true' />
+                </button>
+              </div>
               <input
                 type='text'
                 placeholder='Major'
@@ -336,12 +362,21 @@ function CVForm({ cvData, setCvData }) {
               />
               <input
                 type='text'
+                placeholder='School'
+                value={edu.school}
+                onChange={(e) =>
+                  handleEducationChange(index, 'school', e.target.value)
+                }
+              />
+              <input
+                type='text'
                 placeholder='GPA'
                 value={edu.gpa}
                 onChange={(e) =>
                   handleEducationChange(index, 'gpa', e.target.value)
                 }
               />
+              <label>Start Date</label>
               <input
                 type='date'
                 value={edu.startDate}
@@ -349,6 +384,7 @@ function CVForm({ cvData, setCvData }) {
                   handleEducationChange(index, 'startDate', e.target.value)
                 }
               />
+              <label>End Date</label>
               <input
                 type='date'
                 value={edu.endDate}
@@ -387,7 +423,18 @@ function CVForm({ cvData, setCvData }) {
         <section className='cv-form-section'>
           {cvData.skills.map((skill, index) => (
             <div key={index} className='cv-form-subsection'>
-              <h4>Skill {index + 1}</h4>
+              <div className='cv-form-subsection-header'>
+                <h4>Skill {index + 1}</h4>
+                <button
+                  type='button'
+                  className='cv-form-remove-btn'
+                  onClick={() => removeListItem('skills', index)}
+                  aria-label={`Remove skill ${index + 1}`}
+                  title='Remove skill'
+                >
+                  <FaTrashAlt aria-hidden='true' />
+                </button>
+              </div>
               <input
                 type='text'
                 placeholder='Skill Name'
@@ -412,93 +459,101 @@ function CVForm({ cvData, setCvData }) {
         </section>
       )}
 
-      {activeSection === "certifications" && (
-    <section className="cv-form-section">
-
-        {cvData.certifications.map((certificate, index) => (
-            <div key={index} className="cv-form-subsection">
+      {activeSection === 'certifications' && (
+        <section className='cv-form-section'>
+          {cvData.certifications.map((certificate, index) => (
+            <div key={index} className='cv-form-subsection'>
+              <div className='cv-form-subsection-header'>
                 <h4>Certification {index + 1}</h4>
+                <button
+                  type='button'
+                  className='cv-form-remove-btn'
+                  onClick={() => removeListItem('certifications', index)}
+                  aria-label={`Remove certification ${index + 1}`}
+                  title='Remove certification'
+                >
+                  <FaTrashAlt aria-hidden='true' />
+                </button>
+              </div>
 
+              <input
+                type='text'
+                placeholder='Certificate Name'
+                value={certificate.name}
+                onChange={(e) =>
+                  handleCertificationChange(index, 'name', e.target.value)
+                }
+              />
+
+              <input
+                type='text'
+                placeholder='Issuing Organization'
+                value={certificate.issuingOrganization || ''}
+                onChange={(e) =>
+                  handleCertificationChange(
+                    index,
+                    'issuingOrganization',
+                    e.target.value
+                  )
+                }
+              />
+
+              <input
+                type='url'
+                placeholder='Certificate Link'
+                value={certificate.certificateLink || ''}
+                onChange={(e) =>
+                  handleCertificationChange(
+                    index,
+                    'certificateLink',
+                    e.target.value
+                  )
+                }
+              />
+
+              <label>Start Date</label>
+              <input
+                type='date'
+                value={certificate.startDate}
+                onChange={(e) =>
+                  handleCertificationChange(index, 'startDate', e.target.value)
+                }
+              />
+
+              <label>End Date</label>
+              <input
+                type='date'
+                value={certificate.endDate}
+                disabled={certificate.isCurrent}
+                onChange={(e) =>
+                  handleCertificationChange(index, 'endDate', e.target.value)
+                }
+              />
+
+              <label>
                 <input
-                    type="text"
-                    placeholder="Certificate Name"
-                    value={certificate.name}
-                    onChange={(e) =>
-                        handleCertificationChange(index, "name", e.target.value)
-                    }
+                  type='checkbox'
+                  checked={certificate.isCurrent}
+                  onChange={(e) =>
+                    handleCertificationChange(
+                      index,
+                      'isCurrent',
+                      e.target.checked
+                    )
+                  }
                 />
+                Present
+              </label>
 
-                <input
-                    type="text"
-                    placeholder="Issuing Organization"
-                    value={certificate.issuingOrganization || ""}
-                    onChange={(e) =>
-                        handleCertificationChange(
-                            index,
-                            "issuingOrganization",
-                            e.target.value
-                        )
-                    }
-                />
-
-                <input
-                    type="url"
-                    placeholder="Certificate Link"
-                    value={certificate.certificateLink || ""}
-                    onChange={(e) =>
-                        handleCertificationChange(
-                            index,
-                            "certificateLink",
-                            e.target.value
-                        )
-                    }
-                />
-
-                <input
-                    type="date"
-                    value={certificate.startDate}
-                    onChange={(e) =>
-                        handleCertificationChange(index, "startDate", e.target.value)
-                    }
-                />
-
-                <input
-                    type="date"
-                    value={certificate.endDate}
-                    disabled={certificate.isCurrent}
-                    onChange={(e) =>
-                        handleCertificationChange(index, "endDate", e.target.value)
-                    }
-                />
-
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={certificate.isCurrent}
-                        onChange={(e) =>
-                            handleCertificationChange(
-                                index,
-                                "isCurrent",
-                                e.target.checked
-                            )
-                        }
-                    />
-                    Present
-                </label>
-
-                <textarea
-                    placeholder="Description (Optional)"
-                    value={certificate.description}
-                    onChange={(e) =>
-                        handleCertificationChange(
-                            index,
-                            "description",
-                            e.target.value
-                        )
-                    }
-                />
+              <textarea
+                placeholder='Description (Optional)'
+                value={certificate.description}
+                onChange={(e) =>
+                  handleCertificationChange(index, 'description', e.target.value)
+                }
+              />
             </div>
-        ))}
+          ))}
 
           <button type='button' onClick={addCertification}>
             Add Certification

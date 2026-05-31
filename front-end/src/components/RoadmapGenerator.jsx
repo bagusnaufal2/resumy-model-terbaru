@@ -118,15 +118,15 @@ function RoadmapGenerator() {
       <section className='roadmap-generator-section'>
         <div className='section-heading roadmap-heading'>
           <span className='section-kicker'>Roadmap Generator</span>
-          <h2 className='upload-title'>Generate a learning roadmap for your target role</h2>
+          <h2 className='upload-title'>Generate a learning roadmap for your job role</h2>
           <p>
-            Enter the role you want to pursue and get a step-by-step learning plan
+            Enter the job role you want to pursue and get a step-by-step learning plan
             with milestones and study resources.
           </p>
         </div>
 
         <form className='roadmap-form' onSubmit={handleSubmit}>
-          <label htmlFor='target-role'>Target role</label>
+          <label htmlFor='target-role'>Job role</label>
           <div className='roadmap-form-row'>
             <input
               id='target-role'
@@ -145,26 +145,10 @@ function RoadmapGenerator() {
 
         {showLoading ? (
           <section className='roadmap-loading' aria-live='polite' aria-busy='true'>
-            <div className='roadmap-loading-copy'>
-              <span className='section-kicker'>Generating</span>
-              <h3>Building your learning roadmap...</h3>
-              <p>We are mapping the core skills, milestones, and learning resources for your target role.</p>
-            </div>
-
-            <div className='roadmap-summary-skeleton skeleton-block' />
-
-            <div className='roadmap-steps-grid'>
-              {[1, 2, 3].map((item) => (
-                <div className='roadmap-step-card roadmap-step-skeleton' key={item}>
-                  <div className='skeleton-pill skeleton-block' />
-                  <div className='skeleton-line skeleton-line-lg skeleton-block' />
-                  <div className='skeleton-line skeleton-block' />
-                  <div className='skeleton-line skeleton-line-sm skeleton-block' />
-                  <div className='skeleton-divider' />
-                  <div className='skeleton-line skeleton-block' />
-                  <div className='skeleton-line skeleton-line-sm skeleton-block' />
-                </div>
-              ))}
+            <div className='roadmap-loading-card'>
+              <span className='roadmap-loading-spinner' aria-hidden='true' />
+              <h3>Generating roadmap...</h3>
+              <p>Please wait 1-2 minutes.</p>
             </div>
           </section>
         ) : null}

@@ -1,20 +1,62 @@
 # ResuMy
 
-ResuMy adalah aplikasi analisis CV yang terdiri dari tiga service:
+ResuMy is a web application that helps users evaluate a resume against a target
+job description. It shows a match score, detected skills, missing skills,
+resume improvement suggestions, a learning roadmap for a target role, and a
+simple CV builder.
 
-- `front-end`: aplikasi React + Vite
-- `back-end`: API Node.js + Express
-- `ai-service`: API FastAPI untuk inference model ATS dan ekstraksi skill
+The project is split into three services:
 
-## Persyaratan
+- `front-end`: React + Vite application
+- `back-end`: Node.js + Express API
+- `ai-service`: FastAPI service for model inference and roadmap generation
 
-Pastikan aplikasi berikut sudah terpasang:
+## Main Features
 
-- Node.js 20 atau versi lebih baru
+- Upload a resume in PDF or DOCX format
+- Analyze resume compatibility with a job description
+- Extract skills from the resume and job description
+- Show missing skills and improvement suggestions
+- Generate a learning roadmap for IT or technology roles
+- Build a simple CV and download it as PDF
+
+## Tech Stack
+
+- Frontend: React, Vite, React Router, React Icons
+- Backend: Node.js, Express, Multer, Mammoth, PDF Parse
+- AI service: FastAPI, TensorFlow/Keras, scikit-learn, OpenRouter
+
+## Project Structure
+
+```text
+.
+|-- ai-service/
+|   |-- main.py
+|   |-- roadmap_generator.py
+|   |-- requirements.txt
+|   `-- models/
+|-- back-end/
+|   |-- app.js
+|   |-- server.js
+|   |-- controllers/
+|   |-- routes/
+|   |-- middlewares/
+|   `-- services/
+`-- front-end/
+    |-- src/
+    |-- package.json
+    `-- vite.config.js
+```
+
+## Requirements
+
+Make sure the following tools are installed:
+
+- Node.js 20 or newer
 - npm
-- Python 3.12 atau Python 3.13
+- Python 3.12 or Python 3.13
 
-Model AI harus tersedia di folder `ai-service/models`:
+The AI model files must be available in `ai-service/models`:
 
 ```text
 resumy_micro_mlp.keras
@@ -24,29 +66,21 @@ scaler.pkl
 tfidf_vectorizer.pkl
 ```
 
-## Menjalankan Project Secara Lokal
+## Running Locally
 
-Jalankan ketiga service pada terminal PowerShell yang berbeda, dengan urutan:
-
-1. AI service
-2. Backend
-3. Frontend
+Run the three services in separate terminals in this order.
 
 ### 1. AI Service
 
-Buka terminal pertama:
-
 ```powershell
-cd c:\Users\bagus\Downloads\resumy-model-terbaru-local\ai-service
-
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m uvicorn main:app --reload --port 8000
+cd ai-service
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 ```
 
-Instalasi dependency Python, khususnya TensorFlow, dapat membutuhkan waktu beberapa menit.
-
-Cek apakah AI service sudah hidup:
+Check the service:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8000/health
@@ -54,61 +88,52 @@ Invoke-RestMethod http://127.0.0.1:8000/health
 
 ### 2. Backend
 
-Buka terminal kedua:
-
 ```powershell
-cd c:\Users\bagus\Downloads\resumy-model-terbaru-local\back-end
-
+cd back-end
 npm ci
 npm start
 ```
 
-Untuk development dengan auto-reload, gunakan:
+For development with auto reload:
 
 ```powershell
 npm run dev
 ```
 
-Cek apakah backend sudah hidup:
+Check the service:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:5000/api/health
 ```
 
-Secara default, backend berjalan pada port `5000` dan memanggil AI service di
-`http://127.0.0.1:8000`.
-
 ### 3. Frontend
 
-Buka terminal ketiga:
-
 ```powershell
-cd c:\Users\bagus\Downloads\resumy-model-terbaru-local\front-end
-
+cd front-end
 npm ci
 npm run dev
 ```
 
-Buka alamat yang ditampilkan Vite di browser, biasanya:
+Open the URL shown by Vite, usually:
 
 ```text
 http://localhost:5173
 ```
 
-Dalam mode development, frontend secara default mengakses backend lokal di
-`http://127.0.0.1:5000`.
+## Environment Variables
 
-## Konfigurasi Environment
+The default local configuration works without a `.env` file. If you need to
+point the services to different URLs, use the variables below.
 
-Untuk setup lokal default, file `.env` tidak wajib dibuat.
+### Frontend
 
-Frontend dapat diarahkan ke backend lain dengan membuat file `front-end/.env`:
+Create `front-end/.env` if the frontend needs to call a custom backend URL:
 
 ```env
 VITE_API_BASE_URL=http://127.0.0.1:5000
 ```
 
-Backend mendukung environment variable berikut:
+### Backend
 
 ```env
 PORT=5000
@@ -117,49 +142,114 @@ AI_SERVICE_TIMEOUT_MS=120000
 FRONTEND_ORIGIN=http://localhost:5173
 ```
 
-Catatan: backend saat ini membaca environment variable dari proses Node, tetapi
-belum memuat file `.env` secara otomatis. Di PowerShell, variabel tersebut dapat
-diatur sebelum menjalankan backend:
+The backend reads environment variables from the Node.js process. If no `.env`
+loader is used, set the variables directly in the terminal before starting the
+backend.
 
-```powershell
-$env:PORT="5000"
-$env:AI_SERVICE_URL="http://127.0.0.1:8000"
-$env:AI_SERVICE_TIMEOUT_MS="120000"
-$env:FRONTEND_ORIGIN="http://localhost:5173"
-npm start
+### AI Service
+
+```env
+OPENROUTER_API_KEY=your-api-key
+OPENROUTER_MODEL=your-model
+AI_SERVICE_ALLOWED_ORIGINS=http://127.0.0.1:5000
 ```
 
-## Port Lokal
+`OPENROUTER_API_KEY` is required for the roadmap generator feature.
 
-| Service | URL Lokal | Health Check |
+## Local Ports
+
+| Service | Local URL | Health Check |
 | --- | --- | --- |
 | AI service | `http://127.0.0.1:8000` | `GET /health` |
 | Backend | `http://127.0.0.1:5000` | `GET /api/health` |
 | Frontend | `http://localhost:5173` | - |
 
+## Main API Endpoints
+
+Endpoints used by the frontend:
+
+- `GET /api/health`: check backend status
+- `POST /api/analyze`: upload a resume and job description for analysis
+- `POST /api/generate-roadmap`: generate a learning roadmap for a target role
+
+The backend forwards AI-related requests to `ai-service`.
+
+## AI Notes
+
+- The match score is not an official score from a commercial ATS product.
+- The score is estimated from a model and similarity features between the
+  resume and job description.
+- Skill extraction uses a NER model and a curated skill list.
+- The roadmap generator uses OpenRouter and returns an error if the AI service
+  fails instead of returning dummy data.
+
+## Deployment Notes
+
+Recommended deployment setup:
+
+- Frontend: Vercel
+- Backend: VPS or Node.js hosting
+- AI service: private service on the same server as the backend
+
+For production, the AI service should not be exposed directly to the public.
+Run it on the local host:
+
+```bash
+uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+The backend can be exposed publicly and call the AI service through:
+
+```env
+AI_SERVICE_URL=http://127.0.0.1:8000
+```
+
+Make sure the production backend sets `FRONTEND_ORIGIN` to the frontend domain.
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for more deployment details.
+
 ## Troubleshooting
 
-### Backend gagal menganalisis CV
+### Frontend cannot access the backend
 
-Pastikan AI service sudah berjalan pada `http://127.0.0.1:8000` sebelum
-melakukan analisis dari frontend.
+Make sure the backend is running at `http://127.0.0.1:5000`. If you use another
+URL, set `VITE_API_BASE_URL` in `front-end/.env`, then restart the frontend.
 
-### Install AI service gagal
+### Backend cannot analyze a resume
 
-Pastikan versi Python adalah 3.12 atau 3.13:
+Make sure the AI service is running and reachable from the backend:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/health
+```
+
+### Roadmap generator fails
+
+Make sure `OPENROUTER_API_KEY` is set in the AI service environment. If the API
+key is missing, invalid, or rate-limited, the roadmap endpoint will return an
+error message.
+
+### AI service installation fails
+
+Make sure the Python version is 3.12 or 3.13:
 
 ```powershell
 python --version
 ```
 
-Python 3.10 tidak cocok untuk versi Keras yang digunakan model ini, sedangkan
-Python 3.14 belum termasuk versi TensorFlow yang didukung untuk project ini.
+The TensorFlow and Keras versions used by this project are not compatible with
+all Python versions, so use a supported version.
 
-### Frontend tidak dapat mengakses backend
+## Verification
 
-Pastikan backend aktif pada port `5000`. Bila menggunakan port atau host lain,
-isi `VITE_API_BASE_URL` pada `front-end/.env`, kemudian restart `npm run dev`.
+Useful commands for checking the project:
 
-## Deployment
+```powershell
+cd front-end
+npm run lint
+npm run build
+```
 
-Panduan deployment tersedia di [DEPLOYMENT.md](./DEPLOYMENT.md).
+```powershell
+cd ai-service
+python -m py_compile main.py roadmap_generator.py
+```

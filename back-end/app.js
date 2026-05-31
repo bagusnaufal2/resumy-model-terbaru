@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import analyzeRoutes from "./routes/analyzeRoutes.js";
-import roadmapGenRoutes from "./routes/roadmapGen.js";
+import roadmapGenRoutes from "./routes/roadmapRoutes.js";
 
 const app = express();
 const configuredOrigins = String(process.env.FRONTEND_ORIGIN || "")

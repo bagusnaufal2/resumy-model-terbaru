@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import CVForm from './CVForm';
 import CVPreview from './CVPreview';
-import html2pdf from 'html2pdf.js';
 
 function CVBuilder() {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
   const [cvData, setCvData] = useState({
     fullName: '',
     email: '',
@@ -54,23 +55,38 @@ function CVBuilder() {
     ],
   });
 
-  const handleDownloadCV = () => {
-    const element = document.getElementById('cv-preview');
+  const handleDownloadCV = async () => {
+    try {
+      setIsDownloading(true);
+      setDownloadError('');
 
-    const opt = {
-      margin: 0.5,
-      filename: 'my-cv.pdf',
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: { scale: 2 },
-      jsPDF: {
-        unit: 'in',
-        format: 'a4',
-        orientation: 'portrait',
-      },
-      enableLinks: true,
-    };
+      const html2pdfModule = await import('html2pdf.js');
+      const html2pdf = html2pdfModule.default || html2pdfModule;
+      const element = document.getElementById('cv-preview');
 
-    html2pdf().set(opt).from(element).save();
+      if (!element) {
+        throw new Error('CV preview is not ready yet.');
+      }
+
+      const opt = {
+        margin: 0.5,
+        filename: 'my-cv.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 2 },
+        jsPDF: {
+          unit: 'in',
+          format: 'a4',
+          orientation: 'portrait',
+        },
+        enableLinks: true,
+      };
+
+      await html2pdf().set(opt).from(element).save();
+    } catch {
+      setDownloadError('PDF could not be generated. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -83,8 +99,18 @@ function CVBuilder() {
         <section className='cv-builder-preview-panel'>
           <CVPreview cvData={cvData} />
           <div className='cv-preview-actions'>
-            <button type='button' onClick={handleDownloadCV}>
-              Download CV
+            {downloadError && (
+              <p className='cv-download-error' aria-live='polite'>
+                {downloadError}
+              </p>
+            )}
+            <button
+              type='button'
+              onClick={handleDownloadCV}
+              disabled={isDownloading}
+              aria-busy={isDownloading}
+            >
+              {isDownloading ? 'Generating PDF...' : 'Download CV'}
             </button>
           </div>
         </section>

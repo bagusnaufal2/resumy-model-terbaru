@@ -20,12 +20,12 @@ const techList = [
   {
     icon: <FaPython />,
     label: "Python",
-    description: "Supports parsing and intelligent resume analysis.",
+    description: "Parses resume text for analysis..",
   },
   {
     icon: <SiTensorflow />,
     label: "TensorFlow",
-    description: "Trains a machine learning model for resume analysis.",
+    description: "Runs the model used for resume scoring.",
   },
 ];
 
@@ -129,11 +129,7 @@ function UploadSection({ onAnalyze, isAnalyzing, analyzeError }) {
       </div>
 
       <div className="tech-strip" id="tech">
-        <span className="section-kicker">Technology</span>
-        <p className="tech-strip-description">
-          Built with a modern stack for lightning-fast analysis and seamless
-          resume processing.
-        </p>
+        <span className="section-kicker">ResuMy Technology</span>
         <div className="tech-logos">
           {techList.map((tech) => (
             <div

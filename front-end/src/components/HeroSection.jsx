@@ -11,20 +11,20 @@ const featureList = [
         icon: <FaSearchDollar />,
         title: "ATS Scoring",
         description:
-            "Measure how well your resume matches ATS filters before you apply."
+            "See how closely your CV matches the target job description."
     },
     {
         icon: <FaFileAlt />,
         title: "Skill Gap Matching",
         description:
-            "Spot missing keywords and important skills recruiters expect to see."
+            "Compare the skills in your CV with the skills in the job description."
 
     },
     {
         icon: <FaChartLine />,
         title: "Trend Skills",
         description:
-            "Follow job-market trends so your resume stays relevant and up to date."
+            "Open an external reference for IT role and skill trends."
     }
 ];
 
@@ -32,12 +32,12 @@ function HeroSection() {
     return (
         <section className="hero" id="about">
             <div className="hero-copy">
-                <h2>Beat the ATS.</h2>
-                <h3>Land the interview with a resume that actually matches.</h3>
-                <p>
-                    Upload your CV, get an instant match score, uncover missing skills,
-                    and learn what to improve before sending your next application.
-                </p>
+                <h2>CV review tools.</h2>
+                    <h3>Analyze your CV, check skill gaps, and build a simple CV.</h3>
+                    <p>
+                        Use the analyzer for match results, the roadmap generator for learning steps,
+                        and the CV builder to prepare your CV.
+                    </p>
                 <div className="hero-actions">
                     <a className="primary-button" href="#upload-cv">Analyze your CV</a>
                     <Link className="secondary-button" to="/cv-builder">Build an ATS CV</Link>

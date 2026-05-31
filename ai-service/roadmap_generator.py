@@ -91,7 +91,6 @@ IT_ROLE_KEYWORDS = {
     "golang",
     "help desk",
     "helpdesk",
-    "informatika",
     "information security",
     "information system",
     "information systems",
@@ -114,9 +113,6 @@ IT_ROLE_KEYWORDS = {
     "it system",
     "java",
     "javascript",
-    "jaringan",
-    "kecerdasan buatan",
-    "keamanan siber",
     "kotlin",
     "kubernetes",
     "laravel",
@@ -183,7 +179,6 @@ IT_ROLE_KEYWORDS = {
     "technical recruiter",
     "technical support",
     "technical writer",
-    "teknologi informasi",
     "tester",
     "typescript",
     "ui",
@@ -279,82 +274,48 @@ def is_it_related_role(target_role: str) -> bool:
 
     return False
 
+def validate_roadmap_data(roadmap_data: dict, target_role: str) -> dict:
+    if not isinstance(roadmap_data, dict):
+        raise ValueError("Roadmap response must be a JSON object.")
 
-FALLBACK_ROADMAP = {
-    "target_role": "Frontend Developer",
-    "summary": (
-        "This roadmap helps you build frontend fundamentals and become ready "
-        "to work on relevant portfolio projects."
-    ),
-    "total_estimated_weeks": 12,
-    "roadmap": [
-        {
-            "step": 1,
-            "skill": "HTML, CSS, and responsive layout",
-            "priority": "high",
-            "estimated_weeks": 3,
-            "learning_resources": [
-                {
-                    "type": "documentation",
-                    "name": "MDN HTML Basics",
-                    "url": "https://developer.mozilla.org/",
-                },
-                {
-                    "type": "project",
-                    "name": "Build a responsive landing page",
-                    "url": "N/A",
-                },
-            ],
-            "milestone": "Build a responsive landing page without copying a template.",
-        },
-        {
-            "step": 2,
-            "skill": "JavaScript and DOM manipulation",
-            "priority": "high",
-            "estimated_weeks": 4,
-            "learning_resources": [
-                {
-                    "type": "documentation",
-                    "name": "MDN JavaScript Guide",
-                    "url": "https://developer.mozilla.org/",
-                },
-                {
-                    "type": "project",
-                    "name": "Build a to-do app with filtering",
-                    "url": "N/A",
-                },
-            ],
-            "milestone": "Build an interactive app with dynamic UI updates and local state.",
-        },
-        {
-            "step": 3,
-            "skill": "React and API integration",
-            "priority": "medium",
-            "estimated_weeks": 5,
-            "learning_resources": [
-                {
-                    "type": "documentation",
-                    "name": "React documentation",
-                    "url": "https://react.dev/",
-                },
-                {
-                    "type": "project",
-                    "name": "Build a small dashboard using a public API",
-                    "url": "N/A",
-                },
-            ],
-            "milestone": "Publish a portfolio-ready React app that consumes an API.",
-        },
-    ],
-}
+    required_fields = ["summary", "total_estimated_weeks", "roadmap"]
 
+    for field in required_fields:
+        if field not in roadmap_data:
+            raise ValueError(f"Missing roadmap field: {field}")
+
+    if not isinstance(roadmap_data["summary"], str) or not roadmap_data["summary"].strip():
+        raise ValueError("Roadmap summary must be a non-empty text.")
+
+    if not isinstance(roadmap_data["total_estimated_weeks"], int):
+        raise ValueError("Total estimated weeks must be a number.")
+
+    if not isinstance(roadmap_data["roadmap"], list) or not roadmap_data["roadmap"]:
+        raise ValueError("Roadmap steps must be a non-empty list.")
+
+    for index, step in enumerate(roadmap_data["roadmap"], start=1):
+        if not isinstance(step, dict):
+            raise ValueError(f"Roadmap step {index} must be an object.")
+
+        for field in ["step", "skill", "priority", "estimated_weeks", "learning_resources", "milestone"]:
+            if field not in step:
+                raise ValueError(f"Missing field '{field}' in roadmap step {index}.")
+
+        if not isinstance(step["learning_resources"], list):
+            raise ValueError(f"Learning resources in step {index} must be a list.")
+
+    roadmap_data["target_role"] = str(
+        roadmap_data.get("target_role") or target_role
+    ).strip()
+
+    return roadmap_data
 
 @router.post("/api/generate-roadmap")
 async def generate_roadmap(payload: RoadmapRequest):
     """Generate a structured learning roadmap using OpenRouter.
 
-    If the API fails, this endpoint returns a fallback roadmap so the
-    frontend can still display a result.
+    If the API fails, this endpoint returns an error so the frontend can
+    show a clear message to the user.
     """
 
     if not OPENROUTER_API_KEY:
@@ -425,8 +386,7 @@ async def generate_roadmap(payload: RoadmapRequest):
             .get("content", "")
         )
 
-        roadmap_data = json.loads(message)
-        roadmap_data.setdefault("target_role", target_role)
+        roadmap_data = validate_roadmap_data(json.loads(message), target_role)
 
         return {
             "success": True,
@@ -451,17 +411,9 @@ async def generate_roadmap(payload: RoadmapRequest):
         ) from exc
 
     except Exception as exc:
-        logger.warning(
-            "OpenRouter API failed (%s). Returning fallback data.", exc
-        )
+        logger.warning("OpenRouter API failed: %s", exc)
 
-        fallback_data = {
-            **FALLBACK_ROADMAP,
-            "target_role": target_role,
-        }
-
-        return {
-            "success": True,
-            "source": "mock_fallback",
-            "data": fallback_data,
-        }
+        raise HTTPException(
+            status_code=502,
+            detail="Roadmap generator is currently unavailable. Please try again later.",
+        ) from exc
