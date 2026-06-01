@@ -1,10 +1,10 @@
 import express from "express";
 import analyzeResume from "../controllers/analyzeController.js";
 import {
-    getAnalysis,
-    listAnalyses,
-} from "../controllers/analysisHistoryController.js";
-import requireHistoryKey from "../middlewares/historyAuthMiddleware.js";
+    getAnalysisRecord,
+    listAnalysisRecords,
+} from "../controllers/analysisRecordController.js";
+import requireAnalysisRecordKey from "../middlewares/analysisRecordAuthMiddleware.js";
 import upload from "../middlewares/uploadMiddleware.js";
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.get("/health", (req, res) => {
 });
 
 router.post("/analyze", upload.single("resume"), analyzeResume);
-router.get("/analyze", requireHistoryKey, listAnalyses);
-router.get("/analyze/:id", requireHistoryKey, getAnalysis);
+router.get("/analyze", requireAnalysisRecordKey, listAnalysisRecords);
+router.get("/analyze/:id", requireAnalysisRecordKey, getAnalysisRecord);
 
 export default router;

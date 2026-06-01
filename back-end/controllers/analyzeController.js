@@ -1,5 +1,5 @@
 import { analyzeResumeWithAI } from '../services/aiService.js';
-import { saveAnalysisRecord } from '../services/analysisHistoryService.js';
+import { saveAnalysisRecord } from '../services/analysisRecordService.js';
 import { extractResumeText } from '../services/fileParserService.js';
 
 async function analyzeResume(req, res) {

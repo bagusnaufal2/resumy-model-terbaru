@@ -1,32 +1,32 @@
 import {
-  getAnalysisHistory,
   getAnalysisRecordById,
-} from '../services/analysisHistoryService.js';
+  getAnalysisRecords,
+} from '../services/analysisRecordService.js';
 
-export async function listAnalyses(req, res) {
+export async function listAnalysisRecords(req, res) {
   try {
-    const history = await getAnalysisHistory();
+    const records = await getAnalysisRecords();
 
     return res.json({
       success: true,
-      message: 'Analysis history retrieved successfully.',
-      data: history,
+      message: 'Analysis records retrieved successfully.',
+      data: records,
     });
   } catch (error) {
     console.error(error);
 
     return res.status(500).json({
       success: false,
-      message: 'Could not retrieve analysis history.',
+      message: 'Could not retrieve analysis records.',
     });
   }
 }
 
-export async function getAnalysis(req, res) {
+export async function getAnalysisRecord(req, res) {
   try {
-    const analysis = await getAnalysisRecordById(req.params.id);
+    const analysisRecord = await getAnalysisRecordById(req.params.id);
 
-    if (!analysis) {
+    if (!analysisRecord) {
       return res.status(404).json({
         success: false,
         message: 'Analysis record not found.',
@@ -36,7 +36,7 @@ export async function getAnalysis(req, res) {
     return res.json({
       success: true,
       message: 'Analysis record retrieved successfully.',
-      data: analysis,
+      data: analysisRecord,
     });
   } catch (error) {
     console.error(error);

@@ -2,8 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const dataDirectory = new URL('../data/', import.meta.url);
-const historyFile = new URL('../data/analysis-history.json', import.meta.url);
-const MAX_HISTORY_ITEMS = 100;
+const recordsFile = new URL('../data/analysis-records.json', import.meta.url);
+const legacyHistoryFile = new URL(
+  '../data/analysis-history.json',
+  import.meta.url,
+);
+const MAX_RECORD_ITEMS = 100;
 
 function createPreview(value, maxLength = 280) {
   const normalizedValue = String(value || '').replace(/\s+/g, ' ').trim();
@@ -15,28 +19,38 @@ function createPreview(value, maxLength = 280) {
   return `${normalizedValue.slice(0, maxLength)}...`;
 }
 
-async function readHistoryFile() {
+async function readJsonArray(file) {
   try {
-    const content = await readFile(historyFile, 'utf8');
+    const content = await readFile(file, 'utf8');
     const parsedContent = JSON.parse(content);
 
     return Array.isArray(parsedContent) ? parsedContent : [];
   } catch (error) {
     if (error.code === 'ENOENT') {
-      return [];
+      return null;
     }
 
     throw error;
   }
 }
 
-async function writeHistoryFile(history) {
+async function readRecordsFile() {
+  const records = await readJsonArray(recordsFile);
+
+  if (records) {
+    return records;
+  }
+
+  return (await readJsonArray(legacyHistoryFile)) || [];
+}
+
+async function writeRecordsFile(records) {
   await mkdir(dataDirectory, { recursive: true });
-  await writeFile(historyFile, JSON.stringify(history, null, 2));
+  await writeFile(recordsFile, JSON.stringify(records, null, 2));
 }
 
 export async function saveAnalysisRecord({ analysis, file, jobDescription }) {
-  const history = await readHistoryFile();
+  const records = await readRecordsFile();
   const record = {
     id: randomUUID(),
     createdAt: new Date().toISOString(),
@@ -54,16 +68,16 @@ export async function saveAnalysisRecord({ analysis, file, jobDescription }) {
     },
   };
 
-  await writeHistoryFile([record, ...history].slice(0, MAX_HISTORY_ITEMS));
+  await writeRecordsFile([record, ...records].slice(0, MAX_RECORD_ITEMS));
 
   return record;
 }
 
-export async function getAnalysisHistory() {
-  return readHistoryFile();
+export async function getAnalysisRecords() {
+  return readRecordsFile();
 }
 
 export async function getAnalysisRecordById(id) {
-  const history = await readHistoryFile();
-  return history.find((record) => record.id === id) || null;
+  const records = await readRecordsFile();
+  return records.find((record) => record.id === id) || null;
 }
