@@ -4,6 +4,7 @@ import {
     getAnalysis,
     listAnalyses,
 } from "../controllers/analysisHistoryController.js";
+import requireHistoryKey from "../middlewares/historyAuthMiddleware.js";
 import upload from "../middlewares/uploadMiddleware.js";
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.get("/health", (req, res) => {
 });
 
 router.post("/analyze", upload.single("resume"), analyzeResume);
-router.get("/analyze", listAnalyses);
-router.get("/analyze/:id", getAnalysis);
+router.get("/analyze", requireHistoryKey, listAnalyses);
+router.get("/analyze/:id", requireHistoryKey, getAnalysis);
 
 export default router;

@@ -140,6 +140,7 @@ PORT=5000
 AI_SERVICE_URL=http://127.0.0.1:8000
 AI_SERVICE_TIMEOUT_MS=120000
 FRONTEND_ORIGIN=http://localhost:5173
+ANALYSIS_HISTORY_KEY=change-this-admin-key
 ```
 
 The backend reads environment variables from the Node.js process. If no `.env`
@@ -171,13 +172,16 @@ Endpoints used by the frontend:
 - `GET /api/health`: check backend status
 - `POST /api/analyze`: upload a resume and job description, analyze it, and
   save the analysis result
-- `GET /api/analyze`: retrieve saved analysis history
-- `GET /api/analyze/:id`: retrieve one saved analysis result
+- `GET /api/analyze`: retrieve saved analysis history with the `x-admin-key`
+  header
+- `GET /api/analyze/:id`: retrieve one saved analysis result with the
+  `x-admin-key` header
 - `POST /api/generate-roadmap`: generate a learning roadmap for a target role
 
 The backend forwards AI-related requests to `ai-service`. Analysis history is
 stored in `back-end/data/analysis-history.json` at runtime. Uploaded resume files
-are not stored.
+are not stored. History endpoints are disabled unless `ANALYSIS_HISTORY_KEY` is
+configured on the backend.
 
 ## AI Notes
 
