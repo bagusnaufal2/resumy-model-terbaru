@@ -38,6 +38,7 @@ htmlcov/
 tmp/
 temp/
 uploads/
+back-end/data/
 .ipynb_checkpoints/
 
 # Editors and operating system files

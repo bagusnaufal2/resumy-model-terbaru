@@ -33,7 +33,7 @@ function App() {
       formData.append('resume', file);
       formData.append('jobDescription', jobDescription);
 
-      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
+      const response = await fetch(`${API_BASE_URL}/api/analyses`, {
         method: 'POST',
         body: formData,
       });

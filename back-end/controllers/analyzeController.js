@@ -1,4 +1,5 @@
 import { analyzeResumeWithAI } from '../services/aiService.js';
+import { saveAnalysisRecord } from '../services/analysisHistoryService.js';
 import { extractResumeText } from '../services/fileParserService.js';
 
 async function analyzeResume(req, res) {
@@ -24,11 +25,20 @@ async function analyzeResume(req, res) {
       resumeText,
       jobDescription,
     });
+    const savedAnalysis = await saveAnalysisRecord({
+      analysis,
+      file: req.file,
+      jobDescription,
+    });
 
     return res.json({
       success: true,
       message: 'Resume analyzed successfully.',
-      data: analysis,
+      data: {
+        ...analysis,
+        analysisId: savedAnalysis.id,
+        createdAt: savedAnalysis.createdAt,
+      },
       file: {
         originalName: req.file.originalname,
         mimeType: req.file.mimetype,

@@ -1,5 +1,9 @@
 import express from "express";
 import analyzeResume from "../controllers/analyzeController.js";
+import {
+    getAnalysis,
+    listAnalyses,
+} from "../controllers/analysisHistoryController.js";
 import upload from "../middlewares/uploadMiddleware.js";
 const router = express.Router();
 
@@ -11,4 +15,8 @@ router.get("/health", (req, res) => {
 });
 
 router.post("/analyze", upload.single("resume"), analyzeResume);
+router.post("/analyses", upload.single("resume"), analyzeResume);
+router.get("/analyses", listAnalyses);
+router.get("/analyses/:id", getAnalysis);
+
 export default router;
