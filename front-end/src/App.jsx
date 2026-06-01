@@ -1,19 +1,16 @@
-import { useState } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import HeroSection from "./components/HeroSection";
-import UploadSection from "./components/UploadSection";
-import DashboardResult from "./components/ResultDashboard";
-import CVBuilder from "./cv-builder/CVBuilder";
+import { useState } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import HeroSection from './components/HeroSection';
+import UploadSection from './components/UploadSection';
+import DashboardResult from './components/ResultDashboard';
+import RoadmapGenerator from './components/RoadmapGenerator';
+import CVBuilder from './cv-builder/CVBuilder';
+import { API_BASE_URL } from './config/api';
 
-import "./styles/style.css";
+import './styles/style.css';
 
-const RESULT_STORAGE_KEY = "analysis-result";
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD
-    ? "https://resumy-api.duckdns.org"
-    : "http://127.0.0.1:5000");
+const RESULT_STORAGE_KEY = 'analysis-result';
 
 function App() {
   const [result, setResult] = useState(() => {
@@ -21,7 +18,8 @@ function App() {
     return savedResult ? JSON.parse(savedResult) : null;
   });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analyzeError, setAnalyzeError] = useState("");
+  const [analyzeError, setAnalyzeError] = useState('');
+
   const navigate = useNavigate();
 
   async function handleAnalyze(file, jobDescription) {
@@ -29,42 +27,42 @@ function App() {
 
     try {
       setIsAnalyzing(true);
-      setAnalyzeError("");
+      setAnalyzeError('');
 
-     const formData = new FormData();
-     formData.append("resume", file);
-     formData.append("jobDescription", jobDescription);
+      const formData = new FormData();
+      formData.append('resume', file);
+      formData.append('jobDescription', jobDescription);
 
-     const response = await fetch(`${API_BASE_URL}/api/analyze`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
+        method: 'POST',
         body: formData,
-     });
+      });
 
-     const result = await response.json();
+      const result = await response.json();
 
-     if (!response.ok) {
-        throw new Error(result.message || "Analysis failed.");
-     }
+      if (!response.ok) {
+        throw new Error(result.message || 'Analysis failed.');
+      }
 
-     setResult(result.data);
-     sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result.data));
-     navigate("/result");
-     window.scrollTo({top:0, behavior: "smooth"});
-
+      setResult(result.data);
+      sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result.data));
+      navigate('/result');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       setAnalyzeError(error.message);
     } finally {
       setIsAnalyzing(false);
-    }}
+    }
+  }
 
   return (
-    <div className="App">
-      <div className="container">
+    <div className='App'>
+      <div className='container'>
         <Navbar />
         <Routes>
           <Route
-            path="/"
-            element={(
+            path='/'
+            element={
               <>
                 <HeroSection />
                 <UploadSection
@@ -73,21 +71,19 @@ function App() {
                   analyzeError={analyzeError}
                 />
               </>
-            )}
+            }
           />
+          <Route path='/roadmap' element={<RoadmapGenerator />} />
+          <Route path='/cv-builder' element={<CVBuilder />} />
           <Route
-            path="/cv-builder"
-            element={<CVBuilder />}
-          />
-          <Route
-            path="/result"
+            path='/result'
             element={
               result ? (
-                <main className="result-page">
+                <main className='result-page'>
                   <DashboardResult result={result} />
                 </main>
               ) : (
-                <Navigate to="/" replace />
+                <Navigate to='/' replace />
               )
             }
           />

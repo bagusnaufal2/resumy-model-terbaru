@@ -1,0 +1,114 @@
+.container {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.topSummary {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.flow {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepItem {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 8px;
+}
+
+.leftNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+  width: 32px;
+}
+
+.circleNode {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #4f46e5;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 13px;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.15);
+}
+
+.connectorLine {
+  width: 2px;
+  flex-grow: 1;
+  background-color: #d1d5db;
+  border-style: dashed;
+  margin: 6px 0;
+}
+
+.rightContent {
+  flex-grow: 1;
+  padding-top: 4px;
+  padding-bottom: 20px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.skillTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.priorityBadge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Utilitas warna dinamis untuk badge */
+.badgeHigh {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.badgeNormal {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.smallDescription {
+  margin: 0;
+  font-size: 13.5px;
+  color: #4b5563;
+  line-height: 1.5;
+  text-align: justify;
+}

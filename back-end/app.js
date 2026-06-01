@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import analyzeRoutes from "./routes/analyzeRoutes.js";
+import roadmapGenRoutes from "./routes/roadmapRoutes.js";
 
 const app = express();
 const configuredOrigins = String(process.env.FRONTEND_ORIGIN || "")
@@ -26,6 +27,7 @@ app.use(
 
 app.use(express.json());
 app.use("/api", analyzeRoutes);
+app.use("/api", roadmapGenRoutes);
 
 app.use((error, req, res, next) => {
     if (!error) {
