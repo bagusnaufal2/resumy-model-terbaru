@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import RoadmapSection from './RoadmapSection';
 
 function SkillTags({ skills = [], emptyLabel }) {
   if (!skills.length) {
@@ -32,6 +31,7 @@ function DashboardResult({ result }) {
         </Link>
       </div>
 
+    
       <div className='score-section'>
         <h3>ATS Match Score</h3>
 
@@ -41,10 +41,10 @@ function DashboardResult({ result }) {
             '--score-value': `${result.score}%`,
             '--score-color':
               result.score > 80
-                ? '#22c55e' // hijau
+                ? '#22c55e' 
                 : result.score > 50
-                  ? '#eab308' // kuning
-                  : '#ef4444', // merah
+                  ? '#eab308' 
+                  : '#ef4444',
           }}
           aria-label={`ATS match score ${result.score} percent`}
         >
@@ -84,8 +84,6 @@ function DashboardResult({ result }) {
           </div>
         </div>
       </div>
-
-      <RoadmapSection roadmap={result.roadmap} />
     </section>
   );
 }

@@ -453,25 +453,29 @@ def get_scorer() -> AtsScorer:
     )
 
 
-# app = FastAPI(title="ResuMy ATS Analysis Service")
+AI_SERVICE_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "AI_SERVICE_ALLOWED_ORIGINS",
+        "http://127.0.0.1:5000",
+    ).split(",")
+    if origin.strip()
+]
 
-# New Updated from AI Engineer
 app = FastAPI(
     title="ResuMy ATS Analysis Service",
     description="ATS Analysis + Roadmap Generator",
     version="1.0.0",
 )
 
-# New Updated from AI Engineer
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=AI_SERVICE_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# New Updated from AI Engineer
 app.include_router(roadmap_router)
 
 @app.get("/health")

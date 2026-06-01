@@ -4,16 +4,13 @@ import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import UploadSection from './components/UploadSection';
 import DashboardResult from './components/ResultDashboard';
+import RoadmapGenerator from './components/RoadmapGenerator';
 import CVBuilder from './cv-builder/CVBuilder';
+import { API_BASE_URL } from './config/api';
 
 import './styles/style.css';
 
 const RESULT_STORAGE_KEY = 'analysis-result';
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD
-    ? 'https://resumy-api.duckdns.org'
-    : 'http://127.0.0.1:5000');
 
 function App() {
   const [result, setResult] = useState(() => {
@@ -22,9 +19,6 @@ function App() {
   });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState('');
-
-  // const [jobDescription, setJobDescription] = useState(''); // Tambahan Baru
-  // const [roadmap, setRoadmap] = useState(null); // Tambahan Baru
 
   const navigate = useNavigate();
 
@@ -79,6 +73,7 @@ function App() {
               </>
             }
           />
+          <Route path='/roadmap' element={<RoadmapGenerator />} />
           <Route path='/cv-builder' element={<CVBuilder />} />
           <Route
             path='/result'

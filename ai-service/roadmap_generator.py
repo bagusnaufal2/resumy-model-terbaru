@@ -1,62 +1,222 @@
 """
-Resumy API — Skill Roadmap Generator Router
-Menggunakan Google Gemini (google-genai SDK) untuk menghasilkan
-learning roadmap berbasis JSON terstruktur.
+Roadmap generator for ResuMy.
+
+This endpoint uses OpenRouter to create a learning roadmap based on the
+user's target role.
 """
 
 import json
 import logging
 import os
+import re
+from urllib import error, request
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
-from google import genai
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-# ---------------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------------
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Environment & Gemini configuration
-# ---------------------------------------------------------------------------
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openrouter/free")
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_REFERER = os.getenv("OPENROUTER_REFERER", "http://localhost:5173")
+OPENROUTER_TITLE = os.getenv("OPENROUTER_TITLE", "ResuMy Roadmap Generator")
+ROLE_TOKEN_PATTERN = re.compile(r"[a-z0-9+#.]+")
 
-print("API KEY RAW:", repr(GEMINI_API_KEY))
+IT_ROLE_KEYWORDS = {
+    "ai",
+    "ai engineer",
+    "ai researcher",
+    "algorithm",
+    "analytics",
+    "api",
+    "app",
+    "android",
+    "application",
+    "application security",
+    "ar",
+    "automation",
+    "aws",
+    "azure",
+    "backend",
+    "back end",
+    "bi",
+    "big data",
+    "business intelligence",
+    "blockchain",
+    "business analyst",
+    "c#",
+    "c++",
+    "cloud engineer",
+    "cloud architect",
+    "cloud",
+    "cms",
+    "computer",
+    "computer science",
+    "computer vision",
+    "cyber",
+    "cyber security",
+    "cybersecurity",
+    "data",
+    "data analyst",
+    "data architect",
+    "data engineer",
+    "data science",
+    "data scientist",
+    "database",
+    "database administrator",
+    "dba",
+    "deep learning",
+    "dev ops",
+    "devsecops",
+    "devops",
+    "developer",
+    "digital product",
+    "docker",
+    "embedded",
+    "engineering manager",
+    "erp",
+    "ethical hacker",
+    "flutter",
+    "frontend",
+    "front end",
+    "fullstack",
+    "full stack",
+    "game",
+    "game developer",
+    "gcp",
+    "golang",
+    "help desk",
+    "helpdesk",
+    "information security",
+    "information system",
+    "information systems",
+    "information technology",
+    "infrastructure",
+    "internet of things",
+    "ios developer",
+    "ios",
+    "iot",
+    "it",
+    "it auditor",
+    "it business analyst",
+    "it consultant",
+    "it governance",
+    "it helpdesk",
+    "it infrastructure",
+    "it project manager",
+    "it security",
+    "it support",
+    "it system",
+    "java",
+    "javascript",
+    "kotlin",
+    "kubernetes",
+    "laravel",
+    "linux",
+    "llm",
+    "low code",
+    "machine learning",
+    "microservices",
+    "ml",
+    "ml engineer",
+    "mlops",
+    "mobile",
+    "mobile developer",
+    "network administrator",
+    "network engineer",
+    "network",
+    "networking",
+    "nlp",
+    "noc",
+    "no code",
+    "node",
+    "node.js",
+    "penetration tester",
+    "pentester",
+    "php",
+    "platform",
+    "product analyst",
+    "product designer",
+    "product manager",
+    "product owner",
+    "programmer",
+    "prompt engineer",
+    "python",
+    "qa",
+    "qa analyst",
+    "qa automation",
+    "qa engineer",
+    "quality assurance",
+    "react",
+    "robotics",
+    "rpa",
+    "sap",
+    "scrum master",
+    "security",
+    "security analyst",
+    "security engineer",
+    "site reliability",
+    "solution architect",
+    "solutions architect",
+    "soc",
+    "software",
+    "software architect",
+    "software engineer",
+    "sre",
+    "swift",
+    "system analyst",
+    "system administrator",
+    "systems analyst",
+    "tech lead",
+    "technical analyst",
+    "technical consultant",
+    "technical project manager",
+    "technical product",
+    "technical recruiter",
+    "technical support",
+    "technical writer",
+    "tester",
+    "typescript",
+    "ui",
+    "ui designer",
+    "ui ux",
+    "ux",
+    "ux designer",
+    "virtual reality",
+    "vr",
+    "web",
+    "web3",
+    "web developer",
+    "wordpress",
+}
 
-if not GEMINI_API_KEY:
+if not OPENROUTER_API_KEY:
     logger.warning(
-        "GEMINI_API_KEY tidak ditemukan di environment variables. "
-        "Endpoint /api/generate-roadmap tidak akan berfungsi."
+        "OPENROUTER_API_KEY was not found in environment variables. "
+        "Endpoint /api/generate-roadmap will not work."
     )
-
-client = None
-
-if GEMINI_API_KEY:
-    client = genai.Client(api_key=GEMINI_API_KEY)
-
-# ---------------------------------------------------------------------------
-# Gemini model & prompt config
-# ---------------------------------------------------------------------------
-MODEL_NAME = "gemini-2.0-flash"
 
 SYSTEM_INSTRUCTION = (
     "You are an expert Technical Recruiter and Career Coach specializing in IT roles. "
-    "Given a target job title, the candidate's current skills, and their missing skills, "
-    "generate a detailed, actionable, step-by-step learning roadmap in JSON format.\n\n"
+    "Only generate roadmaps for roles in IT, software, data, AI/ML, cybersecurity, "
+    "cloud, infrastructure, networking, QA, UI/UX, ERP, IoT, automation, "
+    "technical support, or digital product fields. "
+    "Given a target role, generate a practical beginner-friendly step-by-step "
+    "learning roadmap in JSON format.\n\n"
     "The JSON output MUST follow this exact structure:\n"
     "{\n"
-    '  "job_title": "<target job title>",\n'
+    '  "target_role": "<target role>",\n'
     '  "summary": "<brief 1-2 sentence overview of the roadmap>",\n'
     '  "total_estimated_weeks": <number>,\n'
     '  "roadmap": [\n'
     "    {\n"
     '      "step": <step number>,\n'
     '      "skill": "<skill to learn>",\n'
-    '      "priority": "<high | medium | low>",\n'
+    '      "priority": "<HIGH | MEDIUM | LOW>",\n'
     '      "estimated_weeks": <number>,\n'
     '      "learning_resources": [\n'
     '        {"type": "<course | documentation | project | book>", "name": "<resource name>", "url": "<URL or N/A>"}\n'
@@ -66,151 +226,194 @@ SYSTEM_INSTRUCTION = (
     "  ]\n"
     "}\n\n"
     "Rules:\n"
-    "- Order steps logically — foundational skills first, advanced skills later.\n"
-    "- Prioritize missing skills that are most critical for the target role as 'high'.\n"
+    "- Order steps logically, from fundamentals to portfolio-ready skills.\n"
+    "- Assume the learner is starting from a junior or beginner level unless stated otherwise.\n"
+    "- Prioritize foundational skills as 'high' and advanced skills as 'medium' or 'low'.\n"
     "- Include at least 2 learning resources per skill.\n"
     "- Keep milestones specific and measurable.\n"
+    "- Reject non-IT roles; never generate roadmaps for health, culinary, legal, "
+    "finance, education, or other non-technology careers.\n"
     "- Output ONLY valid JSON, no markdown, no extra text."
 )
 
-# ---------------------------------------------------------------------------
-# Router
-# ---------------------------------------------------------------------------
 router = APIRouter()
 
 
-# ---------------------------------------------------------------------------
-# Pydantic schema
-# ---------------------------------------------------------------------------
 class RoadmapRequest(BaseModel):
-    """Body request untuk endpoint /api/generate-roadmap."""
+    """Request body for the roadmap generator.
 
-    job_title: str
-    current_skills: str
-    missing_skills: str
-
-
-# ---------------------------------------------------------------------------
-# Fallback dummy data (API Mocking untuk frontend)
-# ---------------------------------------------------------------------------
-FALLBACK_ROADMAP = {
-    "job_title": "Machine Learning Engineer",
-    "summary": "Learn deployment and backend skills for ML Engineer roles.",
-    "total_estimated_weeks": 8,
-    "roadmap": [
-        {
-            "step": 1,
-            "skill": "FastAPI",
-            "priority": "high",
-            "estimated_weeks": 2,
-            "learning_resources": [
-                {
-                    "type": "documentation",
-                    "name": "FastAPI Docs",
-                    "url": "https://fastapi.tiangolo.com"
-                }
-            ],
-            "milestone": "Build a REST API for ML inference."
-        },
-        {
-            "step": 2,
-            "skill": "Docker",
-            "priority": "high",
-            "estimated_weeks": 2,
-            "learning_resources": [
-                {
-                    "type": "documentation",
-                    "name": "Docker Docs",
-                    "url": "https://docs.docker.com"
-                }
-            ],
-            "milestone": "Containerize ML service."
-        }
-    ]
-}
-
-
-# ---------------------------------------------------------------------------
-# Endpoint: POST /api/generate-roadmap
-# ---------------------------------------------------------------------------
-@router.post("/api/generate-roadmap")
-async def generate_roadmap(payload: RoadmapRequest):
-    """Menghasilkan learning roadmap terstruktur menggunakan Gemini AI.
-
-    Jika Gemini API gagal (quota/rate-limit), endpoint akan mengembalikan
-    data dummy (mock) agar tim frontend tidak terblokir.
+    `job_title` is still accepted as a fallback so older payloads do not
+    break immediately, but the new flow uses `target_role`.
     """
 
-    # Guard — pastikan API key tersedia
-    # if not GEMINI_API_KEY:
-    #     raise HTTPException(
-    #         status_code=503,
-    #         detail="GEMINI_API_KEY belum dikonfigurasi. Tambahkan ke file .env.",
-    #     )
+    target_role: str | None = Field(default=None, min_length=1)
+    job_title: str | None = Field(default=None, min_length=1)
 
-    if client is None:
+    def resolved_target_role(self) -> str:
+        return str(self.target_role or self.job_title or "").strip()
+
+
+def normalize_role_text(text: str) -> str:
+    return " ".join(ROLE_TOKEN_PATTERN.findall(str(text).lower()))
+
+
+def is_it_related_role(target_role: str) -> bool:
+    normalized_role = normalize_role_text(target_role)
+
+    if not normalized_role:
+        return False
+
+    role_tokens = set(normalized_role.split())
+
+    for keyword in IT_ROLE_KEYWORDS:
+        if " " in keyword and keyword in normalized_role:
+            return True
+
+        if keyword in role_tokens:
+            return True
+
+    return False
+
+def validate_roadmap_data(roadmap_data: dict, target_role: str) -> dict:
+    if not isinstance(roadmap_data, dict):
+        raise ValueError("Roadmap response must be a JSON object.")
+
+    required_fields = ["summary", "total_estimated_weeks", "roadmap"]
+
+    for field in required_fields:
+        if field not in roadmap_data:
+            raise ValueError(f"Missing roadmap field: {field}")
+
+    if not isinstance(roadmap_data["summary"], str) or not roadmap_data["summary"].strip():
+        raise ValueError("Roadmap summary must be a non-empty text.")
+
+    if not isinstance(roadmap_data["total_estimated_weeks"], int):
+        raise ValueError("Total estimated weeks must be a number.")
+
+    if not isinstance(roadmap_data["roadmap"], list) or not roadmap_data["roadmap"]:
+        raise ValueError("Roadmap steps must be a non-empty list.")
+
+    for index, step in enumerate(roadmap_data["roadmap"], start=1):
+        if not isinstance(step, dict):
+            raise ValueError(f"Roadmap step {index} must be an object.")
+
+        for field in ["step", "skill", "priority", "estimated_weeks", "learning_resources", "milestone"]:
+            if field not in step:
+                raise ValueError(f"Missing field '{field}' in roadmap step {index}.")
+
+        if not isinstance(step["learning_resources"], list):
+            raise ValueError(f"Learning resources in step {index} must be a list.")
+
+    roadmap_data["target_role"] = str(
+        roadmap_data.get("target_role") or target_role
+    ).strip()
+
+    return roadmap_data
+
+@router.post("/api/generate-roadmap")
+async def generate_roadmap(payload: RoadmapRequest):
+    """Generate a structured learning roadmap using OpenRouter.
+
+    If the API fails, this endpoint returns an error so the frontend can
+    show a clear message to the user.
+    """
+
+    if not OPENROUTER_API_KEY:
         raise HTTPException(
             status_code=503,
-            detail="GEMINI_API_KEY belum dikonfigurasi. Tambahkan ke file .env.",
-    )
-
-    # Validasi input tidak kosong
-    if (
-        not payload.job_title.strip()
-        or not payload.current_skills.strip()
-        or not payload.missing_skills.strip()
-    ):
-        raise HTTPException(
-            status_code=422,
-            detail="Semua field (job_title, current_skills, missing_skills) wajib diisi.",
+            detail="OPENROUTER_API_KEY is not configured. Add it to the .env file.",
         )
 
-    # Konstruksi prompt
-    user_prompt = (
-        f"Target Job Title: {payload.job_title}\n"
-        f"Candidate's Current Skills: {payload.current_skills}\n"
-        f"Missing / Gap Skills: {payload.missing_skills}\n\n"
-        "Generate the step-by-step learning roadmap in JSON."
-    )
+    target_role = payload.resolved_target_role()
 
-    try:
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=user_prompt,
-            config=genai.types.GenerateContentConfig(
-                system_instruction=SYSTEM_INSTRUCTION,
-                response_mime_type="application/json",
-                temperature=0.7,
+    if not target_role:
+        raise HTTPException(
+            status_code=422,
+            detail="Field target_role is required.",
+        )
+
+    if not is_it_related_role(target_role):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Roadmaps are only available for IT or technology roles. "
+                "Examples: Frontend Developer, Data Analyst, UI/UX Designer, "
+                "Cyber Security Analyst, or IT Support."
             ),
         )
 
-        # Parse respons JSON dari Gemini
-        roadmap_data = json.loads(response.text)
+    user_prompt = (
+        f"Target Role: {target_role}\n\n"
+        "First confirm the role is in the IT or technology field. "
+        "Then generate a practical step-by-step learning roadmap in JSON."
+    )
+
+    try:
+        payload = {
+            "model": OPENROUTER_MODEL,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": SYSTEM_INSTRUCTION,
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt,
+                },
+            ],
+            "temperature": 0.7,
+            "response_format": {"type": "json_object"},
+        }
+
+        api_request = request.Request(
+            OPENROUTER_URL,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": OPENROUTER_REFERER,
+                "X-Title": OPENROUTER_TITLE,
+            },
+            method="POST",
+        )
+
+        with request.urlopen(api_request, timeout=45) as response:
+            response_body = json.loads(response.read().decode("utf-8"))
+
+        message = (
+            response_body.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content", "")
+        )
+
+        roadmap_data = validate_roadmap_data(json.loads(message), target_role)
 
         return {
             "success": True,
-            "source": "gemini",
+            "source": "openrouter",
             "data": roadmap_data,
         }
 
     except json.JSONDecodeError as exc:
-        logger.error("Gemini response bukan JSON valid: %s", exc)
+        logger.error("OpenRouter response was not valid JSON: %s", exc)
         raise HTTPException(
             status_code=502,
-            detail="Respons dari Gemini bukan JSON yang valid. Coba lagi.",
+            detail="OpenRouter returned invalid JSON. Please try again.",
+        ) from exc
+
+    except error.HTTPError as exc:
+        error_body = exc.read().decode("utf-8", errors="replace")
+        logger.warning("OpenRouter HTTP error (%s): %s", exc.code, error_body)
+
+        raise HTTPException(
+            status_code=502,
+            detail="OpenRouter request failed. Check the API key, model, or rate limit.",
         ) from exc
 
     except Exception as exc:
-        import traceback
+        logger.warning("OpenRouter API failed: %s", exc)
 
-        print("\n===== GEMINI ERROR =====")
-        print(type(exc))
-        print(exc)
-        traceback.print_exc()
-        print("========================\n")
-
-        return {
-            "success": True,
-            "source": "mock_fallback",
-            "data": FALLBACK_ROADMAP,
-        }
+        raise HTTPException(
+            status_code=502,
+            detail="Roadmap generator is currently unavailable. Please try again later.",
+        ) from exc

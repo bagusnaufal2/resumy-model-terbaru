@@ -1,5 +1,5 @@
 const DEFAULT_AI_SERVICE_URL = 'http://127.0.0.1:8000';
-const DEFAULT_TIMEOUT_MS = 30000;
+const DEFAULT_TIMEOUT_MS = 120000;
 
 function createAIServiceError(message, statusCode = 502) {
   const error = new Error(message);
@@ -11,10 +11,10 @@ function normalizeStringArray(value) {
   if (!Array.isArray(value)) {
     return [];
   }
+
   return value.map((item) => String(item).trim()).filter(Boolean);
 }
 
-// Helper untuk menormalisasi output Analisis ATS CV
 function normalizeAnalysis(data) {
   const numericScore = Number(data?.score);
 
@@ -27,34 +27,6 @@ function normalizeAnalysis(data) {
     skillsHave: normalizeStringArray(data.skillsHave),
     skillsMissing: normalizeStringArray(data.skillsMissing),
     improvements: normalizeStringArray(data.improvements),
-  };
-}
-
-// Helper baru untuk menormalisasi output Roadmap dari Gemini Python
-function normalizeRoadmap(body) {
-  const roadmapData = body?.data;
-
-  // Validasi apakah struktur data utama dari FastAPI Python valid
-  if (!roadmapData || !Array.isArray(roadmapData.roadmap)) {
-    throw createAIServiceError(
-      'AI service returned an invalid roadmap structure.',
-    );
-  }
-
-  return {
-    jobTitle: roadmapData.job_title || '',
-    summary: roadmapData.summary || '',
-    totalEstimatedWeeks: Number(roadmapData.total_estimated_weeks) || 0,
-    roadmap: roadmapData.roadmap.map((item) => ({
-      step: Number(item.step) || 0,
-      skill: String(item.skill || '').trim(),
-      priority: String(item.priority || 'medium').trim(),
-      estimatedWeeks: Number(item.estimated_weeks) || 0,
-      learningResources: Array.isArray(item.learning_resources)
-        ? item.learning_resources
-        : [],
-      milestone: String(item.milestone || '').trim(),
-    })),
   };
 }
 
@@ -72,7 +44,6 @@ function getAIServiceTimeout() {
     : DEFAULT_TIMEOUT_MS;
 }
 
-// FITUR 1: Analisis ATS CV
 export async function analyzeResumeWithAI({ resumeText, jobDescription }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), getAIServiceTimeout());
@@ -113,14 +84,17 @@ export async function analyzeResumeWithAI({ resumeText, jobDescription }) {
   return normalizeAnalysis(body);
 }
 
-// FITUR 2: Roadmap Generator (Menembak FastAPI Python Router)
-export async function generateRoadmapWithAI({
-  jobTitle,
-  currentSkills,
-  missingSkills,
-}) {
+export async function generateRoadmapWithAI({ targetRole }) {
+  const normalizedTargetRole = String(targetRole || '').trim();
+
+  if (!normalizedTargetRole) {
+    throw createAIServiceError('Target role is required.', 400);
+  }
+
   const controller = new AbortController();
+
   const timeout = setTimeout(() => controller.abort(), getAIServiceTimeout());
+
   let response;
 
   try {
@@ -130,20 +104,15 @@ export async function generateRoadmapWithAI({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        job_title: jobTitle,
-        current_skills: Array.isArray(currentSkills)
-          ? currentSkills.join(', ')
-          : currentSkills,
-        missing_skills: Array.isArray(missingSkills)
-          ? missingSkills.join(', ')
-          : missingSkills,
+        target_role: normalizedTargetRole,
       }),
-      signal: controller.signal, // Penambahan signal timeout aktif
+      signal: controller.signal,
     });
   } catch (error) {
+    const timeoutMs = getAIServiceTimeout();
     const reason =
       error.name === 'AbortError'
-        ? 'Roadmap service timed out.'
+        ? `Roadmap service timed out after ${timeoutMs / 1000} seconds.`
         : 'Roadmap service is not reachable.';
     throw createAIServiceError(reason);
   } finally {
@@ -156,6 +125,5 @@ export async function generateRoadmapWithAI({
     throw createAIServiceError(body.detail || 'Roadmap generation failed.');
   }
 
-  // Memasukkan hasil response mentah ke dalam helper normalisasi data
-  return normalizeRoadmap(body);
+  return body.data;
 }

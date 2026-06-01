@@ -6,5 +6,4 @@ scikit-learn==1.6.1
 tensorflow>=2.21,<3
 uvicorn[standard]>=0.32,<1
 pydantic
-google-genai
 python-dotenv

@@ -11,5 +11,4 @@ router.get("/health", (req, res) => {
 });
 
 router.post("/analyze", upload.single("resume"), analyzeResume);
-
 export default router;
