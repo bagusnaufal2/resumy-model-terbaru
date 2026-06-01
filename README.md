@@ -169,11 +169,10 @@ AI_SERVICE_ALLOWED_ORIGINS=http://127.0.0.1:5000
 Endpoints used by the frontend:
 
 - `GET /api/health`: check backend status
-- `POST /api/analyses`: upload a resume and job description, analyze it, and save
-  the analysis result
-- `GET /api/analyses`: retrieve saved analysis history
-- `GET /api/analyses/:id`: retrieve one saved analysis result
-- `POST /api/analyze`: legacy resume analysis endpoint
+- `POST /api/analyze`: upload a resume and job description, analyze it, and
+  save the analysis result
+- `GET /api/analyze`: retrieve saved analysis history
+- `GET /api/analyze/:id`: retrieve one saved analysis result
 - `POST /api/generate-roadmap`: generate a learning roadmap for a target role
 
 The backend forwards AI-related requests to `ai-service`. Analysis history is

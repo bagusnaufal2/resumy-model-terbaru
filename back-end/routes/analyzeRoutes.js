@@ -15,8 +15,7 @@ router.get("/health", (req, res) => {
 });
 
 router.post("/analyze", upload.single("resume"), analyzeResume);
-router.post("/analyses", upload.single("resume"), analyzeResume);
-router.get("/analyses", listAnalyses);
-router.get("/analyses/:id", getAnalysis);
+router.get("/analyze", listAnalyses);
+router.get("/analyze/:id", getAnalysis);
 
 export default router;
